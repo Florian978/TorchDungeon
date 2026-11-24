@@ -1,4 +1,6 @@
-# Nu primesc notă pentru că nu am pus titlu și descriere
+# TorchDungeon
+
+Dungeon crawler 2D turn-based inspirat din *Darkest Dungeon*, în care o echipă de eroi explorează o secvență de camere dintr-o temniță, gestionând sănătatea (HP), stresul și nivelul torței în lupte pe ture și evenimente de explorare. Datele despre eroi, abilități, inamici și camere sunt încărcate din fișiere JSON, iar interfața 2D este realizată cu SFML 3.
 
 ### Folosiți template-ul corespunzător grupei voastre!
 
@@ -33,8 +35,8 @@ O cerință nu se consideră îndeplinită dacă este realizată doar prin cod g
 
 ### Tema 0
 
-- [ ] Nume proiect (poate fi schimbat ulterior)
-- [ ] Scurtă descriere a temei alese, ce v-ați propus să implementați
+- [x] Nume proiect (poate fi schimbat ulterior)
+- [x] Scurtă descriere a temei alese, ce v-ați propus să implementați
 
 ## Tema 1
 
@@ -105,6 +107,13 @@ O cerință nu se consideră îndeplinită dacă este realizată doar prin cod g
 Proiectul este configurat cu CMake.
 
 Instrucțiuni pentru terminal:
+
+0. Biblioteci necesare pe Linux (ar trebui să meargă pe sisteme bazate pe Debian/Arch/Fedora/OpenSUSE, necesită `sudo`)
+```sh
+bash ./scripts/install-linux-deps.sh
+```
+
+Dacă lipsesc și alte biblioteci, ștergeți folder-ul de build de la pasul 1 și reconfigurați proiectul după ce ați instalat ce lipsea.
 
 1. Pasul de configurare
 ```sh
@@ -205,5 +214,8 @@ The project is licensed under [AGPLv3](LICENSE).
 The [template repository](https://github.com/mcmarius/oop-template) itself is licensed under [Unlicense](LICENSE.template).
 
 ## Resurse
-
+<!-- renovate: datasource=github-tags depName=SFML/SFML versioning=loose -->
+- [SFML](https://github.com/SFML/SFML/tree/3.1.0) (Zlib)
+- [Poza cu avionul](https://pixabay.com/vectors/travel-holiday-trip-flight-6913775/)
+- [Font](https://fonts.google.com/selection?selection.family=Fira+Sans)
 - adăugați trimiteri **detaliate** către resursele externe care v-au ajutat sau pe care le-ați folosit
