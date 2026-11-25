@@ -1,7 +1,7 @@
 #include "DungeonLoader.h"
 
 #include <fstream>
-#include <nlohmann/json.hpp>
+#include <json/json.hpp>
 #include <stdexcept>
 #include <utility>
 

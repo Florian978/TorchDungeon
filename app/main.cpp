@@ -108,6 +108,10 @@ void showExpeditionWindow(const Expedition& expedition) {
     std::cout << "Fereastra a fost creată\n";
 
     const sf::Font font = ResourceManager::Instance().getFont("FiraSans-Regular.ttf");
+    const sf::Texture emblemTexture = ResourceManager::Instance().getTexture("airplane.png");
+    sf::Sprite emblemSprite{emblemTexture};
+    emblemSprite.setScale({0.15f, 0.15f});
+    emblemSprite.setPosition({640.f, 30.f});
 
     sf::Text titleText{font};
     titleText.setString("TorchDungeon - Expedition Report");
@@ -176,6 +180,7 @@ void showExpeditionWindow(const Expedition& expedition) {
 
         window.clear(sf::Color{20, 18, 26});
         window.draw(titleText);
+        window.draw(emblemSprite);
         window.draw(summaryText);
         window.draw(torchBarBg);
         window.draw(torchBarFill);
