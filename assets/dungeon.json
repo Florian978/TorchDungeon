@@ -1,0 +1,57 @@
+{
+  "dungeonName": "The Ruined Crypts",
+  "initialTorch": 80,
+  "initialGold": 40,
+  "rooms": [
+    {
+      "name": "Gatehouse Hall",
+      "type": "Combat",
+      "torchCost": 10,
+      "encounterName": "Bone Soldier",
+      "enemyMaxHp": 26,
+      "hazardDamage": 10,
+      "hazardStress": 12,
+      "goldReward": 35
+    },
+    {
+      "name": "Spike Corridor",
+      "type": "Trap",
+      "torchCost": 10,
+      "encounterName": "Rusted Pressure Plate",
+      "enemyMaxHp": 0,
+      "hazardDamage": 9,
+      "hazardStress": 18,
+      "goldReward": 0
+    },
+    {
+      "name": "Sunken Vault",
+      "type": "Treasure",
+      "torchCost": 15,
+      "encounterName": "Heirloom Chest",
+      "enemyMaxHp": 0,
+      "hazardDamage": 0,
+      "hazardStress": 0,
+      "goldReward": 60
+    },
+    {
+      "name": "Quiet Alcove",
+      "type": "Camp",
+      "torchCost": 5,
+      "encounterName": "Smoldering Brazier",
+      "enemyMaxHp": 0,
+      "hazardDamage": 0,
+      "hazardStress": 0,
+      "goldReward": 0
+    },
+    {
+      "name": "Sanctum of Ash",
+      "type": "Combat",
+      "torchCost": 15,
+      "encounterName": "Cultist Acolyte",
+      "enemyMaxHp": 34,
+      "hazardDamage": 12,
+      "hazardStress": 24,
+      "goldReward": 75
+    }
+  ]
+}

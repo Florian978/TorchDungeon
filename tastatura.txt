@@ -1,2 +1,17 @@
-5
-11 22 33 44 55
+status
+risk
+turn 0 0 0
+camp 20
+turn 1 1 0
+turn 2 0 0
+turn 2 0 0
+turn 0 0 0
+risk
+camp 30
+turn 1 0 0
+turn 0 0 0
+turn 0 1 0
+turn 2 1 0
+turn 1 0 0
+risk
+status

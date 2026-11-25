@@ -1,132 +1,211 @@
-#include <iostream>
-#include <array>
+#include <cassert>
 #include <chrono>
+#include <cstddef>
+#include <exception>
+#include <iostream>
+#include <optional>
+#include <sstream>
+#include <string>
 #include <thread>
+#include <unordered_map>
 
 #include <SFML/Graphics.hpp>
 
-#include "Example.h"
-
+#include "DungeonLoader.h"
+#include "Expedition.h"
+#include "Hero.h"
 #include "ResourceManager.hpp"
+#include "Skill.h"
 
-//////////////////////////////////////////////////////////////////////
-/// This class is used to test that the memory leak checks work as expected even when using a GUI
-class SomeClass {
-public:
-    explicit SomeClass(int) {}
-};
+namespace {
 
-SomeClass *getC() {
-    return new SomeClass{2};
-}
-//////////////////////////////////////////////////////////////////////
-
-void PersonalizeazaAvion(sf::Sprite& avion)
-{
-    avion.setScale({0.3f, 0.3f});
-    avion.setPosition({400, 350});
-
-    sf::FloatRect bounds = avion.getGlobalBounds();
-    avion.setOrigin({
-        bounds.position.x + bounds.size.x / 2,
-        bounds.position.y + bounds.size.y / 2
-    });
+void inspectSkills(const std::unordered_map<std::string, Skill>& skills) {
+    std::cout << "=== Loaded Skills (" << skills.size() << ") ===\n";
+    for (const auto& [key, skill] : skills) {
+        std::cout << " - " << skill.getName()
+                  << " (key: " << key
+                  << ", support: " << (skill.isSupportSkill() ? "yes" : "no")
+                  << ", power@bright: " << skill.calculateEffectivePower(85)
+                  << ", power@dark: " << skill.calculateEffectivePower(15)
+                  << ", stress: " << skill.getStressDelta()
+                  << ", torch: " << skill.getTorchDelta() << ")\n"
+                  << "   " << skill << '\n';
+    }
+    std::cout << '\n';
 }
 
-int main() {
-    std::cout << "Hello, world!\n";
-    Example e1;
-    e1.add(3);
-    e1.g();
-    ///////////////////////////////////////////////////////////////////////////
+void testHeroRuleOfThree(const Hero& sampleHero) {
+    std::cout << "=== Testing Hero Rule of Three ===\n";
 
-    SomeClass *c = getC();
-    std::cout << c << "\n";
-    delete c;  // comentarea acestui rând ar trebui să ducă la semnalarea unui mem leak
+    Hero copyHero{sampleHero};
+    std::cout << "[cc] Copied hero: " << copyHero.getName()
+              << " (HP: " << copyHero.getHp() << ")\n";
+    assert(copyHero == sampleHero);
 
-    sf::RenderWindow window;
-    ///////////////////////////////////////////////////////////////////////////
-    /// NOTE: sync with env variable APP_WINDOW from .github/workflows/cmake.yml:31
-    window.create(sf::VideoMode({800, 700}), "My Window", sf::Style::Default);
-    ///////////////////////////////////////////////////////////////////////////
-    std::cout << "Fereastra a fost creată\n";
-    ///////////////////////////////////////////////////////////////////////////
-    /// NOTE: mandatory use one of vsync or FPS limit (not both)            ///
-    /// This is needed so we do not burn the GPU                            ///
-    // window.setVerticalSyncEnabled(true);                                 ///
-    window.setFramerateLimit(60);                                           ///
-    ///////////////////////////////////////////////////////////////////////////
+    copyHero.receiveImpact(10, 15, 50);
+    std::cout << "[cc] After modifying copy -> copy HP: " << copyHero.getHp()
+              << ", original HP: " << sampleHero.getHp() << '\n';
+    assert(copyHero != sampleHero);
 
-    /////////////////////////////////////////////////////////
-    /// Pentru a putea folosi resurse locale în cadrul programului trebuie modificat `CMakeLists.txt`.
-    /// Deschide `CMakeLists.txt` și dă scroll la final, unde sunt apelurile la funcția `copy_files()`.
-    ///
-    /// După pasul anterior, putem folosi resursele locale folosind sintaxa `ResourceManager::Instance().get*`, unde
-    /// * poate fi Texture, Font, Sound sau orice alt tip de resursă de care avem nevoie.
-    ////////////////////////////////////////////////////////
+    Hero assignedHero{sampleHero};
+    assignedHero = copyHero;
+    std::cout << "[op=] Assigned hero HP: " << assignedHero.getHp() << '\n';
+    assert(assignedHero == copyHero);
 
-    // Decomentează liniile marcate cu `@` de mai jos pentru a vedea ce se întâmplă atunci când încerci să folosești o textură inexistentă.
-    sf::Font font = ResourceManager::Instance().getFont("FiraSans-Regular.ttf");
+    assignedHero.applyRecovery(5, 10);
+    std::cout << "[op=] After modifying assigned -> assigned HP: " << assignedHero.getHp()
+              << ", copy HP: " << copyHero.getHp() << '\n';
+    assert(assignedHero != copyHero);
 
-    sf::Texture avion_texture;
-    sf::Text tip_avion(font);
-    // sf::Texture dummyTexture; // @
+    std::cout << "=== Rule of Three checks passed ===\n\n";
+}
 
-    try {
-        avion_texture = ResourceManager::Instance().getTexture("airplane.png");
-        // dummyTexture = ResourceManager::Instance().getTexture("fizzbuzz.png"); // @
-    } catch(std::exception& exp) {
-        std::cout << exp.what() << std::endl;
-        return 0;
+void runConsoleScenario(Expedition& expedition) {
+    std::cout << "=== TorchDungeon Expedition Started ===\n";
+    std::cout << "Commands: status | risk | turn <heroIdx> <skillIdx> <targetIdx> | camp <gold> | quit\n\n";
+
+    std::string command;
+    while (std::cin >> command) {
+        if (command == "status") {
+            std::cout << expedition << '\n';
+        } else if (command == "risk") {
+            std::cout << "[Risk] " << expedition.assessSurvivalRisk() << '\n';
+        } else if (command == "turn") {
+            std::size_t heroIdx = 0;
+            std::size_t skillIdx = 0;
+            std::size_t targetIdx = 0;
+            if (std::cin >> heroIdx >> skillIdx >> targetIdx) {
+                std::cout << "[Turn] " << expedition.executeTurn(heroIdx, skillIdx, targetIdx) << '\n';
+            }
+        } else if (command == "camp") {
+            int goldBudget = 0;
+            if (std::cin >> goldBudget) {
+                std::cout << "[Camp] " << expedition.campAndRecover(goldBudget) << '\n';
+            }
+        } else if (command == "quit") {
+            std::cout << "Exiting expedition loop.\n";
+            break;
+        } else {
+            std::cout << "Unknown command: " << command << '\n';
+        }
     }
 
-    sf::Sprite avion(avion_texture);
+    std::cout << "\n=== Expedition Summary ===\n";
+    std::cout << "Result: "
+              << (expedition.isVictory() ? "VICTORY" : (expedition.isActive() ? "IN PROGRESS" : "DEFEAT"))
+              << "\nRooms cleared: " << expedition.getCurrentRoomIndex() << "/" << expedition.getRoomCount()
+              << "\nParty size: " << expedition.getPartySize()
+              << "\nFinal torch: " << expedition.getTorchLevel() << "/100"
+              << "\nFinal gold: " << expedition.getGold()
+              << "\nFinal risk: " << expedition.assessSurvivalRisk() << "\n\n";
+}
 
-    PersonalizeazaAvion(avion); // Este o funcție care modifică dimensiunea avionului și îi pune originea în centru.
+void showExpeditionWindow(const Expedition& expedition) {
+    sf::RenderWindow window;
+    // NOTE: synced with env variable APP_WINDOW from .github/workflows/cmake.yml
+    window.create(sf::VideoMode({800, 700}), "My Window", sf::Style::Default);
+    window.setFramerateLimit(60);
+    std::cout << "Fereastra a fost creată\n";
 
-    tip_avion.setString("An airplane");
+    const sf::Font font = ResourceManager::Instance().getFont("FiraSans-Regular.ttf");
 
-    while(window.isOpen()) {
+    sf::Text titleText{font};
+    titleText.setString("TorchDungeon - Expedition Report");
+    titleText.setCharacterSize(32);
+    titleText.setFillColor(sf::Color{245, 198, 92});
+    titleText.setPosition({40.f, 35.f});
+
+    std::ostringstream summaryStream;
+    summaryStream << "Outcome: "
+                  << (expedition.isVictory() ? "VICTORY" : (expedition.isActive() ? "IN PROGRESS" : "DEFEAT"))
+                  << "\nRooms cleared: " << expedition.getCurrentRoomIndex() << " / " << expedition.getRoomCount()
+                  << "\nParty size: " << expedition.getPartySize()
+                  << "\nGold collected: " << expedition.getGold()
+                  << "\nTorch level: " << expedition.getTorchLevel() << " / 100"
+                  << "\nRisk assessment:\n  " << expedition.assessSurvivalRisk()
+                  << "\n\nPress ESC to close window.";
+
+    sf::Text summaryText{font};
+    summaryText.setString(summaryStream.str());
+    summaryText.setCharacterSize(20);
+    summaryText.setFillColor(sf::Color{230, 230, 230});
+    summaryText.setPosition({40.f, 110.f});
+
+    sf::RectangleShape torchBarBg{{400.f, 26.f}};
+    torchBarBg.setFillColor(sf::Color{45, 45, 55});
+    torchBarBg.setOutlineThickness(2.f);
+    torchBarBg.setOutlineColor(sf::Color{180, 140, 70});
+    torchBarBg.setPosition({40.f, 360.f});
+
+    const float torchRatio = static_cast<float>(expedition.getTorchLevel()) / 100.f;
+    sf::RectangleShape torchBarFill{{400.f * torchRatio, 26.f}};
+    torchBarFill.setFillColor(expedition.getTorchLevel() <= 25
+                                  ? sf::Color{185, 65, 55}
+                                  : sf::Color{245, 175, 55});
+    torchBarFill.setPosition({40.f, 360.f});
+
+    while (window.isOpen()) {
         bool shouldExit = false;
 
-        while(const std::optional event = window.pollEvent()) {
+        while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 window.close();
                 std::cout << "Fereastra a fost închisă\n";
-            }
-            else if (event->is<sf::Event::Resized>()) {
+            } else if (event->is<sf::Event::Resized>()) {
                 std::cout << "New width: " << window.getSize().x << '\n'
                           << "New height: " << window.getSize().y << '\n';
-            }
-            else if (event->is<sf::Event::KeyPressed>()) {
+            } else if (event->is<sf::Event::KeyPressed>()) {
                 const auto* keyPressed = event->getIf<sf::Event::KeyPressed>();
-                std::cout << "Received key " << (keyPressed->scancode == sf::Keyboard::Scancode::X ? "X" : "(other)") << "\n";
-                if(keyPressed->scancode == sf::Keyboard::Scancode::Escape) {
+                std::cout << "Received key "
+                          << (keyPressed->scancode == sf::Keyboard::Scancode::X ? "X" : "(other)")
+                          << '\n';
+                if (keyPressed->scancode == sf::Keyboard::Scancode::Escape) {
                     shouldExit = true;
                 }
             }
         }
 
-        if(shouldExit) {
+        if (shouldExit) {
             window.close();
             std::cout << "Fereastra a fost închisă (shouldExit == true)\n";
             break;
         }
 
         using namespace std::chrono_literals;
-        std::this_thread::sleep_for(150ms);
+        std::this_thread::sleep_for(50ms);
 
-
-        float new_angle = avion.getRotation().asDegrees() + 1;
-        sf::Angle angle = sf::degrees(new_angle);
-        avion.setRotation(angle);
-
-        window.clear();
-
-        window.draw(avion); // Afișăm avionul încărcat pe ecran
-        window.draw(tip_avion); // Afișăm tipul avionului
-
+        window.clear(sf::Color{20, 18, 26});
+        window.draw(titleText);
+        window.draw(summaryText);
+        window.draw(torchBarBg);
+        window.draw(torchBarFill);
         window.display();
+    }
+}
+
+} // namespace
+
+int main() {
+    try {
+        const auto skills = DungeonLoader::loadSkills("assets/skills.json");
+        inspectSkills(skills);
+
+        const auto heroes = DungeonLoader::loadHeroes("assets/heroes.json", skills);
+        if (!heroes.empty()) {
+            testHeroRuleOfThree(heroes.front());
+        }
+
+        Expedition expedition = DungeonLoader::loadExpedition(
+            "assets/skills.json",
+            "assets/heroes.json",
+            "assets/dungeon.json"
+        );
+
+        runConsoleScenario(expedition);
+        showExpeditionWindow(expedition);
+    } catch (const std::exception& exp) {
+        std::cerr << "Error: " << exp.what() << '\n';
+        return 1;
     }
 
     std::cout << "Programul a terminat execuția\n";

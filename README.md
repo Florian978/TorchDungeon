@@ -61,7 +61,7 @@ O cerință nu se consideră îndeplinită dacă este realizată doar prin cod g
 
 ## Tema 2
 
-#### Cerințe
+``#### Cerințe
 - [ ] separarea codului din clase în `.h` (sau `.hpp`) și `.cpp`
 - [ ] moșteniri:
   - minim o clasă de bază și **3 clase derivate** din aceeași ierarhie; cele 3 derivate moștenesc aceeași clasă de bază
@@ -89,7 +89,7 @@ O cerință nu se consideră îndeplinită dacă este realizată doar prin cod g
   - noua derivată nu poate fi una existentă care a fost ștearsă și adăugată din nou
   - noua derivată va fi integrată în codul existent (adică va fi folosită, nu adăugată doar ca să fie)
 - [ ] tag de `git` pe commit cu **toate bifele**: de exemplu `v0.2`
-- [ ] code review #2 2 proiecte
+- [ ] code review #2 2 proiecte``
 
 ## Tema 3
 

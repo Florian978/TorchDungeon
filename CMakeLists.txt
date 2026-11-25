@@ -54,6 +54,15 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(SFML)
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+FetchContent_Declare(
+        nlohmann_json
+        SYSTEM
+        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
 ###############################################################################
 
 # External dependencies with find_package
@@ -69,24 +78,36 @@ endif()
 # Configure sources
 
 # always STATIC (simpler); TBD if we ever want dynamic for this; BUILD_SHARED_LIBS is for ext deps
-add_library(${MAIN_LIBRARY_NAME} STATIC)
+add_library(${MAIN_LIBRARY_NAME} STATIC
+        include/DungeonLoader.h
+        include/DungeonLoader.h
+        src/DungeonLoader.cpp)
 
 # NOTE: update EXECUTABLE_NAME in .github/workflows/cmake.yml when changing name here
 add_executable(${MAIN_EXECUTABLE_NAME}
-    app/main.cpp
+        app/main.cpp
 )
 target_sources(${MAIN_LIBRARY_NAME}
-    PRIVATE
+        PRIVATE
         src/Example.cpp
         src/internal/Detail.cpp
         src/ResourceManager.cpp
         include/ResourceManager.hpp
+        src/Skill.cpp
+        include/Skill.h
+        src/Hero.cpp
+        include/Hero.h
+        src/Room.cpp
+        include/Room.h
+        src/Expedition.cpp
+        include/Expedition.h
+        src/DungeonLoader.cpp
+        include/DungeonLoader.h
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )
 # NOTE: RUN_SANITIZERS is optional, if it's not present it will default to true
 set_compiler_flags(RUN_SANITIZERS ${USE_ASAN} TARGET_NAMES ${MAIN_EXECUTABLE_NAME} ${MAIN_LIBRARY_NAME})
-
 ###############################################################################
 
 # Configure includes
@@ -116,6 +137,7 @@ target_include_directories(${MAIN_LIBRARY_NAME} SYSTEM PRIVATE
 # Link libraries
 
 target_link_libraries(${MAIN_LIBRARY_NAME} PUBLIC SFML::Graphics SFML::Window SFML::System Threads::Threads)
+target_link_libraries(${MAIN_LIBRARY_NAME} PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE ${MAIN_LIBRARY_NAME})
 
 # target_link_directories(${MAIN_EXECUTABLE_NAME} PRIVATE ${<SomeLib>_BINARY_DIR}/lib)

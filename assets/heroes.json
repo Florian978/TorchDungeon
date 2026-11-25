@@ -1,0 +1,25 @@
+{
+  "heroes": [
+    {
+      "name": "Reynauld",
+      "role": "Crusader",
+      "maxHp": 40,
+      "defense": 4,
+      "skills": ["Smite", "Inspiring Cry"]
+    },
+    {
+      "name": "Junia",
+      "role": "Vestal",
+      "maxHp": 32,
+      "defense": 2,
+      "skills": ["Judgement", "Divine Grace"]
+    },
+    {
+      "name": "Dismas",
+      "role": "Highwayman",
+      "maxHp": 34,
+      "defense": 2,
+      "skills": ["Wicked Slice", "Noxious Blast"]
+    }
+  ]
+}

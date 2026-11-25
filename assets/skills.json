@@ -1,0 +1,52 @@
+{
+  "skills": [
+    {
+      "name": "Smite",
+      "baseDamage": 14,
+      "healAmount": 0,
+      "stressDelta": 0,
+      "torchDelta": 0,
+      "accuracy": 90
+    },
+    {
+      "name": "Inspiring Cry",
+      "baseDamage": 0,
+      "healAmount": 4,
+      "stressDelta": -12,
+      "torchDelta": 10,
+      "accuracy": 100
+    },
+    {
+      "name": "Judgement",
+      "baseDamage": 10,
+      "healAmount": 0,
+      "stressDelta": 0,
+      "torchDelta": 5,
+      "accuracy": 85
+    },
+    {
+      "name": "Divine Grace",
+      "baseDamage": 0,
+      "healAmount": 12,
+      "stressDelta": -5,
+      "torchDelta": 0,
+      "accuracy": 100
+    },
+    {
+      "name": "Wicked Slice",
+      "baseDamage": 17,
+      "healAmount": 0,
+      "stressDelta": 4,
+      "torchDelta": -5,
+      "accuracy": 75
+    },
+    {
+      "name": "Noxious Blast",
+      "baseDamage": 13,
+      "healAmount": 0,
+      "stressDelta": 0,
+      "torchDelta": 0,
+      "accuracy": 85
+    }
+  ]
+}
